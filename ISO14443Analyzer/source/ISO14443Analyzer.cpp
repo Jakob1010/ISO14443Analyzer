@@ -11,6 +11,7 @@ ISO14443Analyzer::ISO14443Analyzer()
 }
 
 //Scheiss git funktionier bitte
+// jo, es geht
 
 ISO14443Analyzer::~ISO14443Analyzer()
 {
