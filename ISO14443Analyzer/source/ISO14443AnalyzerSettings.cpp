@@ -7,7 +7,7 @@ ISO14443AnalyzerSettings::ISO14443AnalyzerSettings()
 	mBitRate( 9600 )
 {
 	mInputChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
-	mInputChannelInterface->SetTitleAndTooltip( "Serial", "Standard ISO14443" );
+	mInputChannelInterface->SetTitleAndTooltip( "DEMOD Channel", "On which Channel is the DEMOD connected?" );
 	mInputChannelInterface->SetChannel( mInputChannel );
 
 	mBitRateInterface.reset( new AnalyzerSettingInterfaceInteger() );
