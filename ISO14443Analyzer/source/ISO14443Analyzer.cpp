@@ -9,8 +9,9 @@ ISO14443Analyzer::ISO14443Analyzer()
 {
 	SetAnalyzerSettings( mSettings.get() );
 }
-//Ich hoffe GIT funktioniert
-//Jawoll, GIT funktioniert einwandfrei - NICHT
+
+//Scheiss git funktionier bitte
+
 ISO14443Analyzer::~ISO14443Analyzer()
 {
 	KillThread();
