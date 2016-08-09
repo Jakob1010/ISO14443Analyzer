@@ -17,7 +17,7 @@ ISO14443AnalyzerSettings::ISO14443AnalyzerSettings()
 	mBitRateInterface->SetInteger( mBitRate );*/
 
 	AddInterface( mInputChannelInterface.get() );
-	AddInterface( mBitRateInterface.get() );
+	//AddInterface( mBitRateInterface.get() );
 
 	AddExportOption( 0, "Export as text/csv file" );
 	AddExportExtension( 0, "text", "txt" );

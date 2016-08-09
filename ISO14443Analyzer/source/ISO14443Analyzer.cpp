@@ -10,8 +10,7 @@ ISO14443Analyzer::ISO14443Analyzer()
 	SetAnalyzerSettings( mSettings.get() );
 }
 
-//Scheiss git funktionier bitte
-// jo, es geht
+
 
 ISO14443Analyzer::~ISO14443Analyzer()
 {
