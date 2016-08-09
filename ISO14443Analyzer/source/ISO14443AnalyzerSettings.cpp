@@ -10,11 +10,11 @@ ISO14443AnalyzerSettings::ISO14443AnalyzerSettings()
 	mInputChannelInterface->SetTitleAndTooltip( "DEMOD Channel", "On which Channel is the DEMOD connected?" );
 	mInputChannelInterface->SetChannel( mInputChannel );
 
-	mBitRateInterface.reset( new AnalyzerSettingInterfaceInteger() );
+	/*mBitRateInterface.reset( new AnalyzerSettingInterfaceInteger() );
 	mBitRateInterface->SetTitleAndTooltip( "Bit Rate (Bits/S)",  "Specify the bit rate in bits per second." );
 	mBitRateInterface->SetMax( 6000000 );
 	mBitRateInterface->SetMin( 1 );
-	mBitRateInterface->SetInteger( mBitRate );
+	mBitRateInterface->SetInteger( mBitRate );*/
 
 	AddInterface( mInputChannelInterface.get() );
 	AddInterface( mBitRateInterface.get() );
