@@ -1,6 +1,6 @@
 #include "ISO14443AnalyzerSettings.h"
 #include <AnalyzerHelpers.h>
-//test new version11133
+//test new version1113300
 
 
 ISO14443AnalyzerSettings::ISO14443AnalyzerSettings()
