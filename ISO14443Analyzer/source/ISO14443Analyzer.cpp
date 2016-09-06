@@ -22,9 +22,6 @@ void ISO14443Analyzer::WorkerThread()
 	mResults.reset( new ISO14443AnalyzerResults( this, mSettings.get() ) );
 	SetAnalyzerResults( mResults.get() );
 	mResults->AddChannelBubblesWillAppearOn( mSettings->mInputChannel );
-	mResults->AddMarker(5000, AnalyzerResults::Zero, mSettings->mInputChannel);
-	mResults->AddMarker(5, AnalyzerResults::Zero, mSettings->mInputChannel);
-	mResults->AddMarker(1000, AnalyzerResults::Zero, mSettings->mInputChannel);
 	mSampleRateHz = GetSampleRate();
 
 	mSerial = GetAnalyzerChannelData( mSettings->mInputChannel );
