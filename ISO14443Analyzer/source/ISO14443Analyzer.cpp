@@ -100,7 +100,7 @@ const char* ISO14443Analyzer::GetAnalyzerName() const
 
 const char* GetAnalyzerName()
 {
-	return "ISO14443";
+	return "NFC Sniffer";
 }
 
 Analyzer* CreateAnalyzer()
