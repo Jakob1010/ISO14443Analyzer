@@ -95,7 +95,7 @@ U32 ISO14443Analyzer::GetMinimumSampleRateHz()
 
 const char* ISO14443Analyzer::GetAnalyzerName() const
 {
-	return "ISO14443";
+	return "NFC Sniffer";
 }
 
 const char* GetAnalyzerName()
