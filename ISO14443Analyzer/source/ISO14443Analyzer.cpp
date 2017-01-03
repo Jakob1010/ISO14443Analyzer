@@ -2,6 +2,7 @@
 #include "ISO14443AnalyzerSettings.h"
 #include <AnalyzerChannelData.h>
 
+
 ISO14443Analyzer::ISO14443Analyzer()
 :	Analyzer(),  
 	mSettings( new ISO14443AnalyzerSettings() ),
@@ -43,7 +44,9 @@ void ISO14443Analyzer::WorkerThread()
 		U64 starting_sample = mSerial->GetSampleNumber();
 
 		mSerial->Advance(samples_to_first_center_of_first_data_bit);
-
+		mResults->AddMarker(3, AnalyzerResults::One, mSettings->mInputChannel);
+		mResults->AddMarker(4, AnalyzerResults::Square, mSettings->mInputChannel); 
+		mResults->AddMarker(5, AnalyzerResults::Stop, mSettings->mInputChannel);
 		for (U32 i = 0; i<8; i++)
 		{
 			//let's put a dot exactly where we sample this bit:
@@ -69,7 +72,7 @@ void ISO14443Analyzer::WorkerThread()
 		mResults->CommitResults();
 		ReportProgress(frame.mEndingSampleInclusive);
 	}
-
+	
 }
 
 bool ISO14443Analyzer::NeedsRerun()
