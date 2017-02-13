@@ -3,7 +3,7 @@
 #include <AnalyzerChannelData.h>
 #include <iostream>
 #include <fstream>
-
+#include <string>
 using namespace std;
 
 ISO14443Analyzer::ISO14443Analyzer()
@@ -40,23 +40,29 @@ void ISO14443Analyzer::WorkerThread()
 	myfile.open("C:\\Users\\Michael\\Desktop\\example.txt");
 	for (; ; )
 	{
-		U64 starting_sample = mSerial->GetSampleNumber();
-		
-		for (U32 i = 0; i<10;i++)
-		{
+		double current_edge = mSerial->GetSampleNumber();
+		double last_edge = 0;
+	
 			
 			mSerial->AdvanceToNextEdge();
-			starting_sample = mSerial->GetSampleNumber();
-				mResults->AddMarker(starting_sample, AnalyzerResults::Stop, mSettings->mInputChannel);
+			current_edge = mSerial->GetSampleNumber();
+				//mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
 				mResults->CommitResults();
 			
 				
 				
-				myfile << "next edge found on: " << starting_sample << "\n";
+				myfile << "next edge found on: " << current_edge << " advanced by: "<< current_edge-last_edge << " samples \n";
 				
-				
+				if (!mSerial->WouldAdvancingCauseTransition(1900))
+				{
+					mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
+
+					myfile <<"end of bitstream \n";
+				}
+
+				last_edge = current_edge;
 			
-		}
+		
 		mResults->CommitResults();
 	}
 	myfile.close();
