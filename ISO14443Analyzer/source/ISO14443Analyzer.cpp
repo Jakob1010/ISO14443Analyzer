@@ -34,8 +34,6 @@ void ISO14443Analyzer::WorkerThread()
 	if (mSerial->GetBitState() == BIT_LOW)
 		mSerial->AdvanceToNextEdge();
 
-	U32 samples_per_bit = mSampleRateHz / mSettings->mBitRate;
-	U32 samples_to_first_center_of_first_data_bit = U32(1.5 * double(mSampleRateHz) / double(mSettings->mBitRate));
 	ofstream myfile;
 	myfile.open("C:\\Users\\Jakob\\Desktop\\example.txt");
 	
@@ -43,26 +41,40 @@ void ISO14443Analyzer::WorkerThread()
 	double last_edge = 0;
 	int count_bitstream = 1;
 	int count_edges = 0;
+	int time_tolerance = 70;
+	int bit_period = 945;
+	bool isBitstream = false;
 	for (; ; )
 	{			
 			mSerial->AdvanceToNextEdge();
 			count_edges += 1;
 			current_edge = mSerial->GetSampleNumber();
 				//mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
-				mResults->CommitResults();
-			
-				
-				
+	
+				if (isBitstream == false)
+					if (mSerial->GetSampleOfNextEdge()-current_edge < 400 && mSerial->GetSampleOfNextEdge() - current_edge > 300){
+						myfile << "Start of Bitstream at " << current_edge << "\n";
+						mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
+						isBitstream = true;
+					}
+		
+
+				if(isBitstream == true)
+				{
 				myfile <<count_edges << ". edge on: " << current_edge << " advanced by: "<< current_edge-last_edge << " samples \n";
+
+
 				
 				if (!mSerial->WouldAdvancingCauseTransition(1900))
 				{
 					mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
 					myfile <<"end of bitstream " << count_bitstream << "\n";
 					count_bitstream += 1;
+					isBitstream = false;
 				}
 
 				last_edge = current_edge;
+				}
 			
 		
 		mResults->CommitResults();
