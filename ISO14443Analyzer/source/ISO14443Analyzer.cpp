@@ -36,7 +36,7 @@ void ISO14443Analyzer::WorkerThread()
 
 	ofstream myfile;
 	myfile.open("C:\\Users\\Michael\\Desktop\\example.txt");
-	
+
 	double current_edge = mSerial->GetSampleNumber();
 	double last_edge = 0;
 	int count_bitstream = 1;
@@ -44,84 +44,79 @@ void ISO14443Analyzer::WorkerThread()
 	int time_tolerance = 70;
 	int bit_period = 945;
 	bool isBitstream = false;
-	
 	mSerial->AdvanceToNextEdge();
 
 	for (; ; )
-	{			
-			count_edges += 1;
-			current_edge = mSerial->GetSampleNumber();
-				
-	
-			if (isBitstream == false)
+	{
+		count_edges += 1;
+		current_edge = mSerial->GetSampleNumber();
+
+
+		if (isBitstream == false)
+		{
+			if (mSerial->GetSampleOfNextEdge() - current_edge < 400 && mSerial->GetSampleOfNextEdge() - current_edge > 300) {
+				myfile << "Start of Bitstream at " << current_edge << "\n";
+				mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
+				isBitstream = true;
+			}
+			else
 			{
-				if (mSerial->GetSampleOfNextEdge() - current_edge < 400 && mSerial->GetSampleOfNextEdge() - current_edge > 300) {
-					myfile << "Start of Bitstream at " << current_edge << "\n";
-					mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
-					isBitstream = true;
+				mSerial->AdvanceToNextEdge();
+			}
+		}
+
+
+		if (isBitstream == true)
+		{
+
+			if (!mSerial->WouldAdvancingCauseTransition(1900))
+			{
+				myfile << "end of bitstream " << count_bitstream << " at " << current_edge << "\n";
+				count_bitstream += 1;
+				isBitstream = false;
+				mSerial->AdvanceToNextEdge();
+			}
+
+			if (isBitstream == true)
+			{
+				if (mSerial->WouldAdvancingCauseTransition(930))
+				{
+					if (mSerial->GetBitState() == BIT_HIGH)
+					{
+						myfile << "+++ detected a 1 +++ " << mSerial->GetSampleNumber() << "\n";
+						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::One, mSettings->mInputChannel);
+
+					}
+
+					if (mSerial->GetBitState() == BIT_LOW)
+					{
+						myfile << "+++ detected a 0a0 at " << mSerial->GetSampleNumber() << " +++ \n";
+						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
+					}
 				}
 				else
 				{
+					myfile << "+++ detected a 0a1 +++ " << mSerial->GetSampleNumber() << "\n";
+					mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
+				}
+
+				mSerial->Advance(900);
+				if (mSerial->WouldAdvancingCauseTransition(47))
+				{
+
 					mSerial->AdvanceToNextEdge();
+					mResults->AddMarker(mSerial->GetSampleNumber(), AnalyzerResults::UpArrow, mSettings->mInputChannel);
+				}
+				else {
+					mSerial->Advance(45);
+					mResults->AddMarker(mSerial->GetSampleNumber(), AnalyzerResults::UpArrow, mSettings->mInputChannel);
 				}
 			}
-		
 
-				if(isBitstream == true)
-				{
-
-				if (!mSerial->WouldAdvancingCauseTransition(1900))
-				{
-					mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
-					myfile <<"end of bitstream " << count_bitstream << " at "<< current_edge <<"\n";
-					count_bitstream += 1;
-					isBitstream = false;
-					mSerial->AdvanceToNextEdge();
-				}
-
-				if (isBitstream == true)
-				{
-					if (mSerial->WouldAdvancingCauseTransition(930))
-					{
-						if (mSerial->GetBitState() == BIT_HIGH)
-						{
-							myfile << "+++ detected a 1 +++ " << mSerial->GetSampleNumber() << "\n";
-							mResults->AddMarker(mSerial->GetSampleNumber()+100, AnalyzerResults::One, mSettings->mInputChannel);
-							
-						}
-
-						if (mSerial->GetBitState() == BIT_LOW)
-						{
-							myfile << "+++ detected a 0a0 at " << mSerial->GetSampleNumber() << " +++ \n";
-							mResults->AddMarker(mSerial->GetSampleNumber()+100, AnalyzerResults::Zero, mSettings->mInputChannel);
-						}
-					}
-					else
-					{
-						myfile << "+++ detected a 0a1 +++ " << mSerial->GetSampleNumber() << "\n";
-						mResults->AddMarker(mSerial->GetSampleNumber()+100, AnalyzerResults::Zero, mSettings->mInputChannel);
-					}
-
-					mSerial->Advance(900);
-					if (mSerial->WouldAdvancingCauseTransition(47))
-					{
-						
-						mSerial->AdvanceToNextEdge();
-						mResults->AddMarker(mSerial->GetSampleNumber(), AnalyzerResults::UpArrow, mSettings->mInputChannel);
-					}
-					else {
-						mSerial->Advance(45);
-						mResults->AddMarker(mSerial->GetSampleNumber(),AnalyzerResults::UpArrow, mSettings->mInputChannel);
-					}
-				}
-				
+			last_edge = current_edge;
+		}
 
 
-
-				last_edge = current_edge;
-				}
-			
-		
 		mResults->CommitResults();
 	}
 	myfile.close();
