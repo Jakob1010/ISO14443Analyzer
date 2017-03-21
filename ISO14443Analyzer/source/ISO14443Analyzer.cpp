@@ -14,11 +14,38 @@ ISO14443Analyzer::ISO14443Analyzer()
 	SetAnalyzerSettings( mSettings.get() );
 }
 
-
-
 ISO14443Analyzer::~ISO14443Analyzer()
 {
 	KillThread();
+}
+
+void ISO14443Analyzer::binToHex(int* bin)
+{
+	ofstream myfile2;
+	myfile2.open("C:\\Users\\Michael\\Desktop\\example2.txt", ofstream::app);
+	char hex[2];
+	int dec = 0;
+
+	for (int i = 7; i >= 0; i--)
+	{
+		dec += (bin[i])*pow(2, (7 - i));
+		myfile2 << "Bin: " << bin[i] << "\n";
+	}
+	int first = dec % 16;
+	int second = dec / 16;
+	hex[0] = convertDecToHex(first);
+	hex[1] = convertDecToHex(second);
+	myfile2 << "Hex number:" << hex[0] << hex[1] << "    " << dec << " first: "<< first << " second: " << second << "\n";
+	myfile2.close();
+}
+
+char ISO14443Analyzer::convertDecToHex(int dec)
+{
+	if (dec<10)
+	{
+		return '0' + dec;
+	}
+	return 'A' + dec - 10;
 }
 
 void ISO14443Analyzer::WorkerThread()
@@ -45,6 +72,11 @@ void ISO14443Analyzer::WorkerThread()
 	int bit_period = 945;
 	bool isBitstream = false;
 	mSerial->AdvanceToNextEdge();
+
+	//convert to hex
+	int bin[8] = {0,1,0,1,1,0,1,0};
+	int countpos = 0;
+	
 
 	for (; ; )
 	{
@@ -85,19 +117,45 @@ void ISO14443Analyzer::WorkerThread()
 					{
 						myfile << "+++ detected a 1 +++ " << mSerial->GetSampleNumber() << "\n";
 						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::One, mSettings->mInputChannel);
+						bin[countpos] = 1;
+						countpos = countpos+1;
+						if (countpos == 7)
+						{
+							myfile <<bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos <<"\n";
+							binToHex(bin);
+							countpos = 0;
 
+						}
 					}
 
 					if (mSerial->GetBitState() == BIT_LOW)
 					{
 						myfile << "+++ detected a 0a0 at " << mSerial->GetSampleNumber() << " +++ \n";
 						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
+						bin[countpos] = 0;
+						countpos = countpos + 1;
+						if (countpos == 7)
+						{
+							myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos << "\n";
+							binToHex(bin);
+							countpos = 0;
+
+						}
 					}
 				}
 				else
 				{
 					myfile << "+++ detected a 0a1 +++ " << mSerial->GetSampleNumber() << "\n";
 					mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
+					bin[countpos] = 0;
+					countpos = countpos + 1;
+					if (countpos == 7)
+					{
+						myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos << "\n";
+						binToHex(bin);
+						countpos = 0;
+
+					}
 				}
 
 				mSerial->Advance(900);

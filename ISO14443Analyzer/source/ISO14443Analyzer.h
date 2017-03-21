@@ -8,6 +8,9 @@
 class ISO14443AnalyzerSettings;
 class ANALYZER_EXPORT ISO14443Analyzer : public Analyzer
 {
+private:
+	char convertDecToHex(int dec);
+	void binToHex(int* bin);
 public:
 	ISO14443Analyzer();
 	virtual ~ISO14443Analyzer();
