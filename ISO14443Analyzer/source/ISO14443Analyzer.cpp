@@ -31,7 +31,7 @@ void ISO14443Analyzer::binToHex(int* bin)
 	int first = dec / 16;
 	hex[0] = convertDecToHex(first);
 	hex[1] = convertDecToHex(second);
-	myfile << "Hex number:" << hex[0] << hex[1] << "    " << dec << " first: "<< first << " second: " << second << "\n";
+	myfile << " --- " << hex[0] << hex[1] << "\n";
 }
 
 char ISO14443Analyzer::convertDecToHex(int dec)
@@ -66,7 +66,7 @@ void ISO14443Analyzer::WorkerThread()
 	mSerial->AdvanceToNextEdge();
 
 	//convert to hex
-	int bin[8];
+	int bin[9];
 	int countpos = 0;
 	
 
@@ -82,6 +82,8 @@ void ISO14443Analyzer::WorkerThread()
 				myfile << "Start of Bitstream at " << current_edge << "\n";
 				mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
 				isBitstream = true;
+				AdvanceToNextBit();
+
 			}
 			else
 			{
@@ -95,9 +97,17 @@ void ISO14443Analyzer::WorkerThread()
 
 			if (!mSerial->WouldAdvancingCauseTransition(1900))
 			{
-				if (countpos != 0)
+				if (countpos == 8)
 				{
-					myfile << "bitstream is not completely decodable. " <<  "\n" << "remaining bits: "<< countpos << "\n";
+					for (int i = 8; i>=1; i--)
+					{	
+					  bin[i] = bin[i - 1];
+					  myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << bin[8] ;
+					}
+					bin[0] = 0;
+					myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] <<;
+					binToHex(bin);
+					myfile << "\n" << "this is a short bitstream with " << countpos << "\n";
 					countpos = 0;
 				}
 
@@ -114,13 +124,13 @@ void ISO14443Analyzer::WorkerThread()
 				{
 					if (mSerial->GetBitState() == BIT_HIGH)
 					{
-						myfile << "detected a 1   at " << mSerial->GetSampleNumber() << "\n";
+						// 1
 						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::One, mSettings->mInputChannel);
 						bin[countpos] = 1;
 						countpos = countpos+1;
-						if (countpos == 8)
+						if (countpos == 9)
 						{
-							myfile <<bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos <<"\n";
+							myfile <<bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << " parity bit: " << bin[8];
 							binToHex(bin);
 							countpos = 0;
 
@@ -129,13 +139,13 @@ void ISO14443Analyzer::WorkerThread()
 
 					if (mSerial->GetBitState() == BIT_LOW)
 					{
-						myfile << "detected a 0a0 at " << mSerial->GetSampleNumber() << "\n";
+						// 0a0
 						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
 						bin[countpos] = 0;
 						countpos = countpos + 1;
-						if (countpos == 8)
+						if (countpos == 9)
 						{
-							myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos << "\n";
+							myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << " parity bit: " << bin[8];
 							binToHex(bin);
 							countpos = 0;
 
@@ -144,30 +154,19 @@ void ISO14443Analyzer::WorkerThread()
 				}
 				else
 				{
-					myfile << "detected a 0a1 at " << mSerial->GetSampleNumber() << "\n";
+					// 0a1
 					mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
 					bin[countpos] = 0;
 					countpos = countpos + 1;
-					if (countpos == 8)
+					if (countpos == 9)
 					{
-						myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos << "\n";
+						myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << " parity bit: " << bin[8] ;
 						binToHex(bin);
 						countpos = 0;
-
 					}
 				}
 
-				mSerial->Advance(900);
-				if (mSerial->WouldAdvancingCauseTransition(47))
-				{
-
-					mSerial->AdvanceToNextEdge();
-					mResults->AddMarker(mSerial->GetSampleNumber(), AnalyzerResults::UpArrow, mSettings->mInputChannel);
-				}
-				else {
-					mSerial->Advance(45);
-					mResults->AddMarker(mSerial->GetSampleNumber(), AnalyzerResults::UpArrow, mSettings->mInputChannel);
-				}
+				AdvanceToNextBit();
 			}
 
 			last_edge = current_edge;
@@ -177,6 +176,21 @@ void ISO14443Analyzer::WorkerThread()
 		mResults->CommitResults();
 	}
 	
+}
+
+void ISO14443Analyzer::AdvanceToNextBit()
+{
+	mSerial->Advance(900);
+	if (mSerial->WouldAdvancingCauseTransition(47))
+	{
+
+		mSerial->AdvanceToNextEdge();
+		mResults->AddMarker(mSerial->GetSampleNumber(), AnalyzerResults::UpArrow, mSettings->mInputChannel);
+	}
+	else {
+		mSerial->Advance(45);
+		mResults->AddMarker(mSerial->GetSampleNumber(), AnalyzerResults::UpArrow, mSettings->mInputChannel);
+	}
 }
 
 bool ISO14443Analyzer::NeedsRerun()

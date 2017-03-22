@@ -16,6 +16,7 @@ class ANALYZER_EXPORT ISO14443Analyzer : public Analyzer
 private:
 	char convertDecToHex(int dec);
 	void binToHex(int* bin);
+	void ISO14443Analyzer::AdvanceToNextBit();
 	ofstream myfile;
 public:
 	ISO14443Analyzer();
