@@ -4,6 +4,11 @@
 #include <Analyzer.h>
 #include "ISO14443AnalyzerResults.h"
 #include "ISO14443SimulationDataGenerator.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
 
 class ISO14443AnalyzerSettings;
 class ANALYZER_EXPORT ISO14443Analyzer : public Analyzer
@@ -11,6 +16,7 @@ class ANALYZER_EXPORT ISO14443Analyzer : public Analyzer
 private:
 	char convertDecToHex(int dec);
 	void binToHex(int* bin);
+	ofstream myfile;
 public:
 	ISO14443Analyzer();
 	virtual ~ISO14443Analyzer();

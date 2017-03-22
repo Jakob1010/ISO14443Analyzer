@@ -1,10 +1,6 @@
 #include "ISO14443Analyzer.h"
 #include "ISO14443AnalyzerSettings.h"
 #include <AnalyzerChannelData.h>
-#include <iostream>
-#include <fstream>
-#include <string>
-using namespace std;
 
 ISO14443Analyzer::ISO14443Analyzer()
 :	Analyzer(),  
@@ -12,31 +8,30 @@ ISO14443Analyzer::ISO14443Analyzer()
 	mSimulationInitilized( false )
 {
 	SetAnalyzerSettings( mSettings.get() );
+	myfile.open("C:\\Users\\Michael\\Desktop\\output.txt");
 }
 
 ISO14443Analyzer::~ISO14443Analyzer()
 {
+	myfile.close();
 	KillThread();
 }
 
 void ISO14443Analyzer::binToHex(int* bin)
 {
-	ofstream myfile2;
-	myfile2.open("C:\\Users\\Michael\\Desktop\\example2.txt", ofstream::app);
+	
 	char hex[2];
 	int dec = 0;
 
 	for (int i = 7; i >= 0; i--)
 	{
 		dec += (bin[i])*pow(2, (7 - i));
-		myfile2 << "Bin: " << bin[i] << "\n";
 	}
-	int first = dec % 16;
-	int second = dec / 16;
+	int second = dec % 16;
+	int first = dec / 16;
 	hex[0] = convertDecToHex(first);
 	hex[1] = convertDecToHex(second);
-	myfile2 << "Hex number:" << hex[0] << hex[1] << "    " << dec << " first: "<< first << " second: " << second << "\n";
-	myfile2.close();
+	myfile << "Hex number:" << hex[0] << hex[1] << "    " << dec << " first: "<< first << " second: " << second << "\n";
 }
 
 char ISO14443Analyzer::convertDecToHex(int dec)
@@ -61,9 +56,6 @@ void ISO14443Analyzer::WorkerThread()
 	if (mSerial->GetBitState() == BIT_LOW)
 		mSerial->AdvanceToNextEdge();
 
-	ofstream myfile;
-	myfile.open("C:\\Users\\Michael\\Desktop\\example.txt");
-
 	double current_edge = mSerial->GetSampleNumber();
 	double last_edge = 0;
 	int count_bitstream = 1;
@@ -74,7 +66,7 @@ void ISO14443Analyzer::WorkerThread()
 	mSerial->AdvanceToNextEdge();
 
 	//convert to hex
-	int bin[8] = {0,1,0,1,1,0,1,0};
+	int bin[8];
 	int countpos = 0;
 	
 
@@ -103,9 +95,16 @@ void ISO14443Analyzer::WorkerThread()
 
 			if (!mSerial->WouldAdvancingCauseTransition(1900))
 			{
-				myfile << "end of bitstream " << count_bitstream << " at " << current_edge << "\n";
+				if (countpos != 0)
+				{
+					myfile << "bitstream is not completely decodable. " <<  "\n" << "remaining bits: "<< countpos << "\n";
+					countpos = 0;
+				}
+
+				myfile << "end of bitstream " << count_bitstream << " at " << current_edge << "\n\n\n";
 				count_bitstream += 1;
 				isBitstream = false;
+				
 				mSerial->AdvanceToNextEdge();
 			}
 
@@ -115,11 +114,11 @@ void ISO14443Analyzer::WorkerThread()
 				{
 					if (mSerial->GetBitState() == BIT_HIGH)
 					{
-						myfile << "+++ detected a 1 +++ " << mSerial->GetSampleNumber() << "\n";
+						myfile << "detected a 1   at " << mSerial->GetSampleNumber() << "\n";
 						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::One, mSettings->mInputChannel);
 						bin[countpos] = 1;
 						countpos = countpos+1;
-						if (countpos == 7)
+						if (countpos == 8)
 						{
 							myfile <<bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos <<"\n";
 							binToHex(bin);
@@ -130,11 +129,11 @@ void ISO14443Analyzer::WorkerThread()
 
 					if (mSerial->GetBitState() == BIT_LOW)
 					{
-						myfile << "+++ detected a 0a0 at " << mSerial->GetSampleNumber() << " +++ \n";
+						myfile << "detected a 0a0 at " << mSerial->GetSampleNumber() << "\n";
 						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
 						bin[countpos] = 0;
 						countpos = countpos + 1;
-						if (countpos == 7)
+						if (countpos == 8)
 						{
 							myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos << "\n";
 							binToHex(bin);
@@ -145,11 +144,11 @@ void ISO14443Analyzer::WorkerThread()
 				}
 				else
 				{
-					myfile << "+++ detected a 0a1 +++ " << mSerial->GetSampleNumber() << "\n";
+					myfile << "detected a 0a1 at " << mSerial->GetSampleNumber() << "\n";
 					mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
 					bin[countpos] = 0;
 					countpos = countpos + 1;
-					if (countpos == 7)
+					if (countpos == 8)
 					{
 						myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << "-----" << countpos << "\n";
 						binToHex(bin);
@@ -177,7 +176,7 @@ void ISO14443Analyzer::WorkerThread()
 
 		mResults->CommitResults();
 	}
-	myfile.close();
+	
 }
 
 bool ISO14443Analyzer::NeedsRerun()
