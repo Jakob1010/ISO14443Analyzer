@@ -1,6 +1,7 @@
 #include "ISO14443Analyzer.h"
 #include "ISO14443AnalyzerSettings.h"
 #include <AnalyzerChannelData.h>
+#include <iomanip>
 
 ISO14443Analyzer::ISO14443Analyzer()
 :	Analyzer(),  
@@ -8,39 +9,13 @@ ISO14443Analyzer::ISO14443Analyzer()
 	mSimulationInitilized( false )
 {
 	SetAnalyzerSettings( mSettings.get() );
-	myfile.open("C:\\Users\\Michael\\Desktop\\output.txt");
+	output_file.open("C:\\Users\\Michael\\Desktop\\output.txt");
 }
 
 ISO14443Analyzer::~ISO14443Analyzer()
 {
-	myfile.close();
+	output_file.close();
 	KillThread();
-}
-
-void ISO14443Analyzer::binToHex(int* bin)
-{
-	
-	char hex[2];
-	int dec = 0;
-
-	for (int i = 7; i >= 0; i--)
-	{
-		dec += (bin[i])*pow(2, (7 - i));
-	}
-	int second = dec % 16;
-	int first = dec / 16;
-	hex[0] = convertDecToHex(first);
-	hex[1] = convertDecToHex(second);
-	myfile << " --- " << hex[0] << hex[1] << "\n";
-}
-
-char ISO14443Analyzer::convertDecToHex(int dec)
-{
-	if (dec<10)
-	{
-		return '0' + dec;
-	}
-	return 'A' + dec - 10;
 }
 
 void ISO14443Analyzer::WorkerThread()
@@ -67,7 +42,8 @@ void ISO14443Analyzer::WorkerThread()
 
 	//convert to hex
 	int bin[9];
-	int countpos = 0;
+	int bit_stream_length = 0;
+	vector<int> bit_stream;
 	
 
 	for (; ; )
@@ -79,10 +55,10 @@ void ISO14443Analyzer::WorkerThread()
 		if (isBitstream == false)
 		{
 			if (mSerial->GetSampleOfNextEdge() - current_edge < 400 && mSerial->GetSampleOfNextEdge() - current_edge > 300) {
-				myfile << "Start of Bitstream at " << current_edge << "\n";
+				output_file << "Start of Bitstream at " << current_edge << "\n";
 				mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
 				isBitstream = true;
-				AdvanceToNextBit();
+				
 
 			}
 			else
@@ -97,21 +73,14 @@ void ISO14443Analyzer::WorkerThread()
 
 			if (!mSerial->WouldAdvancingCauseTransition(1900))
 			{
-				if (countpos == 8)
-				{
-					for (int i = 8; i>=1; i--)
-					{	
-					  bin[i] = bin[i - 1];
-					  myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << bin[8] ;
-					}
-					bin[0] = 0;
-					myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] <<;
-					binToHex(bin);
-					myfile << "\n" << "this is a short bitstream with " << countpos << "\n";
-					countpos = 0;
-				}
-
-				myfile << "end of bitstream " << count_bitstream << " at " << current_edge << "\n\n\n";
+				
+				PrintOutBitstream(bit_stream, bit_stream_length);
+				UnpackBitstream(bit_stream, bit_stream_length);
+				//output_file << "\n" << "this is a short bitstream with " << bit_stream_length << "\n";
+				bit_stream_length = 0;
+				bit_stream.resize(0);
+				
+				output_file << "end of bitstream " << count_bitstream << " at " << current_edge << "\n\n\n";
 				count_bitstream += 1;
 				isBitstream = false;
 				
@@ -126,44 +95,27 @@ void ISO14443Analyzer::WorkerThread()
 					{
 						// 1
 						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::One, mSettings->mInputChannel);
-						bin[countpos] = 1;
-						countpos = countpos+1;
-						if (countpos == 9)
-						{
-							myfile <<bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << " parity bit: " << bin[8];
-							binToHex(bin);
-							countpos = 0;
-
-						}
+						bit_stream_length++;
+						bit_stream.reserve(bit_stream_length-1);
+						bit_stream.push_back(1);
 					}
 
 					if (mSerial->GetBitState() == BIT_LOW)
 					{
 						// 0a0
 						mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
-						bin[countpos] = 0;
-						countpos = countpos + 1;
-						if (countpos == 9)
-						{
-							myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << " parity bit: " << bin[8];
-							binToHex(bin);
-							countpos = 0;
-
-						}
+						bit_stream_length++;
+						bit_stream.reserve(bit_stream_length-1);
+						bit_stream.push_back(0);						
 					}
 				}
 				else
 				{
 					// 0a1
 					mResults->AddMarker(mSerial->GetSampleNumber() + 100, AnalyzerResults::Zero, mSettings->mInputChannel);
-					bin[countpos] = 0;
-					countpos = countpos + 1;
-					if (countpos == 9)
-					{
-						myfile << bin[0] << bin[1] << bin[2] << bin[3] << bin[4] << bin[5] << bin[6] << bin[7] << " parity bit: " << bin[8] ;
-						binToHex(bin);
-						countpos = 0;
-					}
+					bit_stream_length++;
+					bit_stream.reserve(bit_stream_length-1);
+					bit_stream.push_back(0);
 				}
 
 				AdvanceToNextBit();
@@ -176,6 +128,24 @@ void ISO14443Analyzer::WorkerThread()
 		mResults->CommitResults();
 	}
 	
+}
+
+void ISO14443Analyzer::PrintOutBitstream(vector<int>& bit_stream, int bit_stream_length)
+{
+	for (int i = 0; i <= bit_stream_length - 1; i++)
+	{
+		output_file << bit_stream[i];
+	}
+	output_file << endl;
+}
+
+void ISO14443Analyzer::PrintOutDecodedBitstream(vector<int>& decoded_bit_stream)
+{
+	for (int i = 0; i <= decoded_bit_stream.size() - 1; i++)
+	{
+		output_file << "      "<< hex << std::setw(2) << setfill('0') << uppercase <<  decoded_bit_stream[i] << "   " ;
+	}
+	output_file << nouppercase << dec << endl;
 }
 
 void ISO14443Analyzer::AdvanceToNextBit()
@@ -192,6 +162,73 @@ void ISO14443Analyzer::AdvanceToNextBit()
 		mResults->AddMarker(mSerial->GetSampleNumber(), AnalyzerResults::UpArrow, mSettings->mInputChannel);
 	}
 }
+
+void ISO14443Analyzer::UnpackBitstream(vector<int>& bit_stream, int bit_stream_length)
+{
+	vector<int> unpacked_bit_stream;
+
+	// divided by 9 because we have a parity bit after each data byte
+	unpacked_bit_stream.reserve(bit_stream_length/9);
+	int byte = 0;
+	// first bit is always 0 - so we start at 2nd position (index 1)
+	int bit = 1;
+	int data_bits;
+	int parity_bits;
+
+	if (bit_stream[bit_stream_length - 1] == 0)
+	{
+		bit_stream_length--;
+	}
+	if (bit_stream_length >= 10)
+	{
+		data_bits = 8;
+		parity_bits = 1;
+		output_file << endl << "SOF";
+		for (int i = 1; i <= bit_stream_length / 9; i++)
+		{
+			output_file << "  DATA  |P|";
+		}
+		
+		output_file << "EOF" << endl << "|" << bit_stream[0] << "|";
+	}
+	else
+	{
+		data_bits = 7;
+		parity_bits = 0;
+		
+		output_file << "This is a short frame!" << endl << "SOF DATA  EOF" << endl;
+		output_file << "|" << bit_stream[0] << "|";
+	}
+	
+		while (bit_stream_length  - bit >= data_bits + parity_bits)
+		{
+			
+			unpacked_bit_stream.push_back(0);
+			
+			for (int i = 0; i <= data_bits-1; i++)
+			{
+				output_file << bit_stream[bit];
+				unpacked_bit_stream[byte] += (bit_stream[bit])*pow(2, (data_bits-1-i));
+				bit++;
+				
+			}
+
+			// skip the parity bit
+			output_file << "|" << bit_stream[bit] <<"|" ;
+			bit++;
+
+			byte++;
+		}
+		if (bit_stream_length >= 10 && bit_stream[bit_stream_length-1]==0)
+		{
+			output_file << "|" << bit_stream[bit] << "|" << " bits left:" << bit_stream_length - bit << endl;
+		}
+		else if (bit_stream_length >=10){
+			output_file << " bits left:" << bit_stream_length - bit << endl;
+		}
+			PrintOutDecodedBitstream(unpacked_bit_stream);
+	
+	}
 
 bool ISO14443Analyzer::NeedsRerun()
 {

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 using namespace std;
 
 
@@ -14,10 +15,11 @@ class ISO14443AnalyzerSettings;
 class ANALYZER_EXPORT ISO14443Analyzer : public Analyzer
 {
 private:
-	char convertDecToHex(int dec);
-	void binToHex(int* bin);
-	void ISO14443Analyzer::AdvanceToNextBit();
-	ofstream myfile;
+	void UnpackBitstream(vector<int>& bit_stream, int bit_stream_lengt);
+	void AdvanceToNextBit();
+	void PrintOutBitstream(vector<int>& bit_stream, int bit_stream_length);
+	void PrintOutDecodedBitstream(vector<int>& decoded_bit_stream);
+	ofstream output_file;
 public:
 	ISO14443Analyzer();
 	virtual ~ISO14443Analyzer();
