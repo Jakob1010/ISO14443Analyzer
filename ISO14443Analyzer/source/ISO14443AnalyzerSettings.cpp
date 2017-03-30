@@ -17,6 +17,7 @@ ISO14443AnalyzerSettings::ISO14443AnalyzerSettings()
 	mBitRateInterface->SetMin( 1 );
 	mBitRateInterface->SetInteger( mBitRate );
 
+
 	AddInterface( mInputChannelInterface.get() );
 	//AddInterface( mBitRateInterface.get() );
 
