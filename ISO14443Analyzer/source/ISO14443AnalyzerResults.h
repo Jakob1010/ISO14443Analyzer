@@ -2,6 +2,8 @@
 #define ISO14443_ANALYZER_RESULTS
 #include <string>
 #include <AnalyzerResults.h>
+#include <fstream>
+#include <iostream>
 
 class ISO14443Analyzer;
 class ISO14443AnalyzerSettings;
@@ -10,6 +12,7 @@ class ISO14443AnalyzerResults : public AnalyzerResults
 {
 private:
 	int test1;
+	std::ofstream file_stream;
 
 public:
 	ISO14443AnalyzerResults( ISO14443Analyzer* analyzer, ISO14443AnalyzerSettings* settings );

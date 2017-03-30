@@ -21,13 +21,13 @@ private:
 	void UnpackBitstream(vector<int>& bit_stream, int bit_stream_lengt);
 	ofstream output_file;
 	U64 bit_stream_integer;
-	string output_string;
+	vector<string> output_string;
 	int count_bitstream;
 public:
 	ISO14443Analyzer();
 	virtual ~ISO14443Analyzer();
 	virtual void WorkerThread();
-	char* GetResultString();
+	string GetResultString(U64 id);
 
 	virtual U32 GenerateSimulationData( U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels );
 	virtual U32 GetMinimumSampleRateHz();

@@ -85,7 +85,7 @@ void ISO14443Analyzer::WorkerThread()
 				bit_stream_length = 0;
 				bit_stream.resize(0);
 				
-				output_file << "end of bitstream " << count_bitstream << " at " << current_edge << "\n\n\n";
+				output_file << dec  << "end of bitstream " << count_bitstream << " at " << current_edge << "\n\n\n";
 				
 				
 				Frame frame;		
@@ -96,11 +96,10 @@ void ISO14443Analyzer::WorkerThread()
 				frame.mEndingSampleInclusive = current_edge;
 				mResults->AddFrame(frame);
 			
-				output_file << endl << output_string;
+				//output_file << endl << output_string;
 
-				mResults->GenerateBubbleText(count_bitstream-1, mSettings->mInputChannel, Hexadecimal);
-				mResults->GenerateFrameTabularText(count_bitstream -1, Hexadecimal);
-				output_string.clear();
+				//mResults->GenerateBubbleText(count_bitstream-1, mSettings->mInputChannel, Hexadecimal);
+				//mResults->GenerateFrameTabularText(count_bitstream -1, Hexadecimal);
 				count_bitstream += 1;
 				isBitstream = false;
 				bit_stream_integer = 0;
@@ -146,6 +145,7 @@ void ISO14443Analyzer::WorkerThread()
 
 
 		mResults->CommitResults();
+		ReportProgress(mSerial->GetSampleNumber());
 	}
 	
 }
@@ -180,9 +180,10 @@ void ISO14443Analyzer::PrintOutDecodedBitstream(vector<int>& decoded_bit_stream)
 		output_file << "   ";
 		
 	}
-	output_string +=  ss.str();
+	std::string out_string = ss.str();
+	output_string.push_back(out_string);
 
-	output_file << " output_string:   ---- " << output_string;
+	output_file << " output_string:   ---- " << out_string;
 	
 		
 }
@@ -296,14 +297,21 @@ U32 ISO14443Analyzer::GenerateSimulationData( U64 minimum_sample_index, U32 devi
 	return mSimulationDataGenerator.GenerateSimulationData( minimum_sample_index, device_sample_rate, simulation_channels );
 }
 
-char* ISO14443Analyzer::GetResultString()
+string ISO14443Analyzer::GetResultString(U64 id)
 {
-	output_file <<endl << output_string << "-------- " << endl;
-	char* cstr = new char[output_string.length() + 1];
-	std::strcpy(cstr, output_string.c_str());
+	//output_file <<endl << output_string << "-------- " << endl;
+	//char* cstr = new char[output_string.length() + 1];
+	//std::strcpy(cstr, output_string.c_str());
+	if (id > output_string.size() || id < 0)
+	{
+		output_file << "Error index out of bound:  " << id << " of [0-" << output_string.size()<< "]"<< " count_bitstream: " << count_bitstream<< endl;
+		return "Error index out of bound"+id;
+	}
+	string out_str = output_string.at(id);
+	const char* test = out_str.c_str();
 	
-	output_file << "cstr:  " << cstr << "   output_string " << output_string << endl;
-	return cstr;
+
+	return out_str;
 }
 
 U32 ISO14443Analyzer::GetMinimumSampleRateHz()
