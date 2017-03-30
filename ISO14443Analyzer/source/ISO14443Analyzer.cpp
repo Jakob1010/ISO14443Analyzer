@@ -2,6 +2,7 @@
 #include "ISO14443AnalyzerSettings.h"
 #include <AnalyzerChannelData.h>
 #include <iomanip>
+#include <sstream>
 
 ISO14443Analyzer::ISO14443Analyzer()
 :	Analyzer(),  
@@ -31,14 +32,18 @@ void ISO14443Analyzer::WorkerThread()
 	if (mSerial->GetBitState() == BIT_LOW)
 		mSerial->AdvanceToNextEdge();
 
+	
+	
 	double current_edge = mSerial->GetSampleNumber();
 	double last_edge = 0;
-	int count_bitstream = 1;
+	count_bitstream = 1;
+	int start_bitstream;
 	int count_edges = 0;
 	int time_tolerance = 70;
 	int bit_period = 945;
 	bool isBitstream = false;
 	mSerial->AdvanceToNextEdge();
+	bit_stream_integer = 1;
 
 	//convert to hex
 	int bin[9];
@@ -57,6 +62,7 @@ void ISO14443Analyzer::WorkerThread()
 			if (mSerial->GetSampleOfNextEdge() - current_edge < 400 && mSerial->GetSampleOfNextEdge() - current_edge > 300) {
 				output_file << "Start of Bitstream at " << current_edge << "\n";
 				mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
+				start_bitstream = current_edge;
 				isBitstream = true;
 				
 
@@ -76,14 +82,28 @@ void ISO14443Analyzer::WorkerThread()
 				
 				PrintOutBitstream(bit_stream, bit_stream_length);
 				UnpackBitstream(bit_stream, bit_stream_length);
-				//output_file << "\n" << "this is a short bitstream with " << bit_stream_length << "\n";
 				bit_stream_length = 0;
 				bit_stream.resize(0);
 				
 				output_file << "end of bitstream " << count_bitstream << " at " << current_edge << "\n\n\n";
+				
+				
+				Frame frame;		
+				frame.mData1 = 0;
+				frame.mFlags = 0;
+				frame.mType = BITSTREAM;
+				frame.mStartingSampleInclusive = start_bitstream;
+				frame.mEndingSampleInclusive = current_edge;
+				mResults->AddFrame(frame);
+			
+				output_file << endl << output_string;
+
+				mResults->GenerateBubbleText(count_bitstream-1, mSettings->mInputChannel, Hexadecimal);
+				mResults->GenerateFrameTabularText(count_bitstream -1, Hexadecimal);
+				output_string.clear();
 				count_bitstream += 1;
 				isBitstream = false;
-				
+				bit_stream_integer = 0;
 				mSerial->AdvanceToNextEdge();
 			}
 
@@ -132,20 +152,39 @@ void ISO14443Analyzer::WorkerThread()
 
 void ISO14443Analyzer::PrintOutBitstream(vector<int>& bit_stream, int bit_stream_length)
 {
+	
 	for (int i = 0; i <= bit_stream_length - 1; i++)
 	{
+		
 		output_file << bit_stream[i];
+
 	}
+	
 	output_file << endl;
 }
 
 void ISO14443Analyzer::PrintOutDecodedBitstream(vector<int>& decoded_bit_stream)
 {
+	stringstream ss;
+	
 	for (int i = 0; i <= decoded_bit_stream.size() - 1; i++)
 	{
-		output_file << "      "<< hex << std::setw(2) << setfill('0') << uppercase <<  decoded_bit_stream[i] << "   " ;
+		
+		
+		output_file << "      ";
+	   
+		output_file << hex << setw(2) << setfill('0') << uppercase << decoded_bit_stream[i];
+		ss << hex << setw(2) << setfill('0') << uppercase << decoded_bit_stream[i];
+		
+		
+		output_file << "   ";
+		
 	}
-	output_file << nouppercase << dec << endl;
+	output_string +=  ss.str();
+
+	output_file << " output_string:   ---- " << output_string;
+	
+		
 }
 
 void ISO14443Analyzer::AdvanceToNextBit()
@@ -183,6 +222,7 @@ void ISO14443Analyzer::UnpackBitstream(vector<int>& bit_stream, int bit_stream_l
 	{
 		data_bits = 8;
 		parity_bits = 1;
+		
 		output_file << endl << "SOF";
 		for (int i = 1; i <= bit_stream_length / 9; i++)
 		{
@@ -190,6 +230,7 @@ void ISO14443Analyzer::UnpackBitstream(vector<int>& bit_stream, int bit_stream_l
 		}
 		
 		output_file << "EOF" << endl << "|" << bit_stream[0] << "|";
+		
 	}
 	else
 	{
@@ -198,6 +239,7 @@ void ISO14443Analyzer::UnpackBitstream(vector<int>& bit_stream, int bit_stream_l
 		
 		output_file << "This is a short frame!" << endl << "SOF DATA  EOF" << endl;
 		output_file << "|" << bit_stream[0] << "|";
+		
 	}
 	
 		while (bit_stream_length  - bit >= data_bits + parity_bits)
@@ -207,18 +249,23 @@ void ISO14443Analyzer::UnpackBitstream(vector<int>& bit_stream, int bit_stream_l
 			
 			for (int i = 0; i <= data_bits-1; i++)
 			{
+			
 				output_file << bit_stream[bit];
+				
 				unpacked_bit_stream[byte] += (bit_stream[bit])*pow(2, (data_bits-1-i));
 				bit++;
 				
 			}
 
 			// skip the parity bit
+			
 			output_file << "|" << bit_stream[bit] <<"|" ;
+			
 			bit++;
 
 			byte++;
 		}
+		
 		if (bit_stream_length >= 10 && bit_stream[bit_stream_length-1]==0)
 		{
 			output_file << "|" << bit_stream[bit] << "|" << " bits left:" << bit_stream_length - bit << endl;
@@ -226,9 +273,12 @@ void ISO14443Analyzer::UnpackBitstream(vector<int>& bit_stream, int bit_stream_l
 		else if (bit_stream_length >=10){
 			output_file << " bits left:" << bit_stream_length - bit << endl;
 		}
+		
 			PrintOutDecodedBitstream(unpacked_bit_stream);
 	
 	}
+
+
 
 bool ISO14443Analyzer::NeedsRerun()
 {
@@ -244,6 +294,16 @@ U32 ISO14443Analyzer::GenerateSimulationData( U64 minimum_sample_index, U32 devi
 	}
 
 	return mSimulationDataGenerator.GenerateSimulationData( minimum_sample_index, device_sample_rate, simulation_channels );
+}
+
+char* ISO14443Analyzer::GetResultString()
+{
+	output_file <<endl << output_string << "-------- " << endl;
+	char* cstr = new char[output_string.length() + 1];
+	std::strcpy(cstr, output_string.c_str());
+	
+	output_file << "cstr:  " << cstr << "   output_string " << output_string << endl;
+	return cstr;
 }
 
 U32 ISO14443Analyzer::GetMinimumSampleRateHz()

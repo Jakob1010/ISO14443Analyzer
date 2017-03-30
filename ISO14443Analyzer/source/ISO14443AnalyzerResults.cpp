@@ -5,11 +5,14 @@
 #include <iostream>
 #include <fstream>
 
-ISO14443AnalyzerResults::ISO14443AnalyzerResults( ISO14443Analyzer* analyzer, ISO14443AnalyzerSettings* settings )
-:	AnalyzerResults(),
-	mSettings( settings ),
-	mAnalyzer( analyzer )
+
+ISO14443AnalyzerResults::ISO14443AnalyzerResults(ISO14443Analyzer* analyzer, ISO14443AnalyzerSettings* settings)
+	: AnalyzerResults(),
+	mSettings(settings),
+	mAnalyzer(analyzer)
+	
 {
+	test1 = 1;
 }
 
 ISO14443AnalyzerResults::~ISO14443AnalyzerResults()
@@ -20,10 +23,14 @@ void ISO14443AnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& chan
 {
 	ClearResultStrings();
 	Frame frame = GetFrame( frame_index );
-
-	char number_str[128];
-	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-	AddResultString( number_str );
+	const char* cstr = mAnalyzer->GetResultString();
+	ofstream file_stream("C:\\Users\\Michael\\Desktop\\outputResults.txt");
+	file_stream << "   .-. " << mAnalyzer->GetResultString() << cstr;
+	//AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
+	test1++;
+	
+	
+	AddResultString(cstr);
 }
 
 void ISO14443AnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 export_type_user_id )
@@ -64,8 +71,8 @@ void ISO14443AnalyzerResults::GenerateFrameTabularText( U64 frame_index, Display
 	ClearResultStrings();
 
 	char number_str[128];
-	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-	AddResultString( number_str );
+	//AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
+	AddResultString("homo");
 }
 
 void ISO14443AnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )

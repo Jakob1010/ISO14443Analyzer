@@ -15,15 +15,19 @@ class ISO14443AnalyzerSettings;
 class ANALYZER_EXPORT ISO14443Analyzer : public Analyzer
 {
 private:
-	void UnpackBitstream(vector<int>& bit_stream, int bit_stream_lengt);
 	void AdvanceToNextBit();
 	void PrintOutBitstream(vector<int>& bit_stream, int bit_stream_length);
 	void PrintOutDecodedBitstream(vector<int>& decoded_bit_stream);
+	void UnpackBitstream(vector<int>& bit_stream, int bit_stream_lengt);
 	ofstream output_file;
+	U64 bit_stream_integer;
+	string output_string;
+	int count_bitstream;
 public:
 	ISO14443Analyzer();
 	virtual ~ISO14443Analyzer();
 	virtual void WorkerThread();
+	char* GetResultString();
 
 	virtual U32 GenerateSimulationData( U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels );
 	virtual U32 GetMinimumSampleRateHz();
@@ -43,7 +47,10 @@ protected: //vars
 	U32 mSampleRateHz;
 	U32 mStartOfStopBitOffset;
 	U32 mEndOfStopBitOffset;
+	
 };
+
+enum STATE { BITSTREAM };
 
 extern "C" ANALYZER_EXPORT const char* __cdecl GetAnalyzerName();
 extern "C" ANALYZER_EXPORT Analyzer* __cdecl CreateAnalyzer( );
