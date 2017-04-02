@@ -27,6 +27,7 @@ public:
 	ISO14443Analyzer();
 	virtual ~ISO14443Analyzer();
 	virtual void WorkerThread();
+	void SetupResults();
 	string GetResultString(U64 id);
 
 	virtual U32 GenerateSimulationData( U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels );

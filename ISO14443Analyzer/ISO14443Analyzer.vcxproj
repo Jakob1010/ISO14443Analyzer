@@ -87,14 +87,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ISO14443ANALYZER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Michael\Desktop\praktikum\SaleaeAnalyzerSdk-1.1.32\SaleaeAnalyzerSdk-1.1.32\ISO4443Analyzer\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\Michael\Desktop\praktikum\SaleaeAnalyzerSdk-1.1.32\SaleaeAnalyzerSdk-1.1.32\ISO4443Analyzer\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Analyzer64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Analyzer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -121,7 +121,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ISO14443ANALYZER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Michael\Desktop\praktikum\SaleaeAnalyzerSdk-1.1.32\SaleaeAnalyzerSdk-1.1.32\ISO4443Analyzer\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\Michael\Desktop\praktikum\SaleaeAnalyzerSdk-1.1.32\SaleaeAnalyzerSdk-1.1.32\ISO4443Analyzer\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Analyzer64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Analyzer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

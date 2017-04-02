@@ -19,12 +19,18 @@ ISO14443Analyzer::~ISO14443Analyzer()
 	KillThread();
 }
 
-void ISO14443Analyzer::WorkerThread()
+void ISO14443Analyzer::SetupResults()
 {
-
 	mResults.reset(new ISO14443AnalyzerResults(this, mSettings.get()));
 	SetAnalyzerResults(mResults.get());
 	mResults->AddChannelBubblesWillAppearOn(mSettings->mInputChannel);
+
+}
+
+void ISO14443Analyzer::WorkerThread()
+{
+
+	
 	mSampleRateHz = GetSampleRate();
 
 	mSerial = GetAnalyzerChannelData(mSettings->mInputChannel);
@@ -96,10 +102,6 @@ void ISO14443Analyzer::WorkerThread()
 				frame.mEndingSampleInclusive = current_edge;
 				mResults->AddFrame(frame);
 			
-				//output_file << endl << output_string;
-
-				//mResults->GenerateBubbleText(count_bitstream-1, mSettings->mInputChannel, Hexadecimal);
-				//mResults->GenerateFrameTabularText(count_bitstream -1, Hexadecimal);
 				count_bitstream += 1;
 				isBitstream = false;
 				bit_stream_integer = 0;
@@ -252,8 +254,8 @@ void ISO14443Analyzer::UnpackBitstream(vector<int>& bit_stream, int bit_stream_l
 			{
 			
 				output_file << bit_stream[bit];
-				
-				unpacked_bit_stream[byte] += (bit_stream[bit])*pow(2, (data_bits-1-i));
+				//Least significant bit is 
+				unpacked_bit_stream[byte] += (bit_stream[bit])*pow(2, (i));
 				bit++;
 				
 			}
@@ -299,9 +301,7 @@ U32 ISO14443Analyzer::GenerateSimulationData( U64 minimum_sample_index, U32 devi
 
 string ISO14443Analyzer::GetResultString(U64 id)
 {
-	//output_file <<endl << output_string << "-------- " << endl;
-	//char* cstr = new char[output_string.length() + 1];
-	//std::strcpy(cstr, output_string.c_str());
+	
 	if (id > output_string.size() || id < 0)
 	{
 		output_file << "Error index out of bound:  " << id << " of [0-" << output_string.size()<< "]"<< " count_bitstream: " << count_bitstream<< endl;
