@@ -20,7 +20,7 @@ ISO14443AnalyzerSettings::ISO14443AnalyzerSettings()
 
 	AddInterface( mInputChannelInterface.get() );
 	//AddInterface( mBitRateInterface.get() );
-
+	 
 	AddExportOption( 0, "Export as text/csv file" );
 	AddExportExtension( 0, "text", "txt" );
 	AddExportExtension( 0, "csv", "csv" );
