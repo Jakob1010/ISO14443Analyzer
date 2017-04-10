@@ -5,7 +5,7 @@
 #include <sstream>
 
 ISO14443Analyzer::ISO14443Analyzer()
-:	Analyzer(),  
+:	Analyzer2(),  
 	mSettings( new ISO14443AnalyzerSettings() ),
 	mSimulationInitilized( false )
 {

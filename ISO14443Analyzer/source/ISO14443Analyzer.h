@@ -12,7 +12,7 @@ using namespace std;
 
 
 class ISO14443AnalyzerSettings;
-class ANALYZER_EXPORT ISO14443Analyzer : public Analyzer
+class ANALYZER_EXPORT ISO14443Analyzer : public Analyzer2
 {
 private:
 	void AdvanceToNextBit();
