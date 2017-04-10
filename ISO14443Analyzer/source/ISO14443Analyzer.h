@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-using namespace std; 
+using namespace std;
 
 
 class ISO14443AnalyzerSettings;
