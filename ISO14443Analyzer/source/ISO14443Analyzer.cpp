@@ -5,7 +5,7 @@
 #include <sstream>
 
 ISO14443Analyzer::ISO14443Analyzer()
-:	Analyzer2(),  
+:	Analyzer(),  
 	mSettings( new ISO14443AnalyzerSettings() ),
 	mSimulationInitilized( false )
 {
@@ -19,15 +19,12 @@ ISO14443Analyzer::~ISO14443Analyzer()
 	KillThread();
 }
 
-void ISO14443Analyzer::SetupResults()
+void ISO14443Analyzer::WorkerThread()
 {
+
 	mResults.reset(new ISO14443AnalyzerResults(this, mSettings.get()));
 	SetAnalyzerResults(mResults.get());
 	mResults->AddChannelBubblesWillAppearOn(mSettings->mInputChannel);
-}
-
-void ISO14443Analyzer::WorkerThread()
-{
 	mSampleRateHz = GetSampleRate();
 
 	mSerial = GetAnalyzerChannelData(mSettings->mInputChannel);

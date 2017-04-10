@@ -70,11 +70,11 @@ void ISO14443AnalyzerResults::GenerateExportFile( const char* file, DisplayBase 
 void ISO14443AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
 	//Frame frame = GetFrame( frame_index );
-	ClearTabularText();
+	ClearResultStrings();
 	file_stream << frame_index << " got called" << std::endl;
 	//char number_str[128];
 	//AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-	AddTabularText(mAnalyzer->GetResultString(frame_index).c_str());
+	AddResultString(mAnalyzer->GetResultString(frame_index).c_str());
 }
 
 void ISO14443AnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )
