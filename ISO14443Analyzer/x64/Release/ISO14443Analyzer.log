@@ -1,9 +1,55 @@
-﻿  ISO14443AnalyzerSettings.cpp
+﻿  ISO14443Analyzer.cpp
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(22): warning C4251: 'ISO14443Analyzer::output_file': class 'std::basic_ofstream<char,std::char_traits<char>>' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+  C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\iosfwd(691): note: see declaration of 'std::basic_ofstream<char,std::char_traits<char>>'
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(24): warning C4251: 'ISO14443Analyzer::output_string': class 'std::vector<std::string,std::allocator<_Ty>>' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+          with
+          [
+              _Ty=std::string
+          ]
+  c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(24): note: see declaration of 'std::vector<std::string,std::allocator<_Ty>>'
+          with
+          [
+              _Ty=std::string
+          ]
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(40): warning C4251: 'ISO14443Analyzer::mSettings': class 'std::auto_ptr<ISO14443AnalyzerSettings>' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+  c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(40): note: see declaration of 'std::auto_ptr<ISO14443AnalyzerSettings>'
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(41): warning C4251: 'ISO14443Analyzer::mResults': class 'std::auto_ptr<ISO14443AnalyzerResults>' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+  c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(41): note: see declaration of 'std::auto_ptr<ISO14443AnalyzerResults>'
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(44): warning C4251: 'ISO14443Analyzer::mSimulationDataGenerator': class 'ISO14443SimulationDataGenerator' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+  c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443SimulationDataGenerator.h(9): note: see declaration of 'ISO14443SimulationDataGenerator'
+source\ISO14443Analyzer.cpp(43): warning C4244: 'initializing': conversion from 'U64' to 'double', possible loss of data
+source\ISO14443Analyzer.cpp(63): warning C4244: '=': conversion from 'U64' to 'double', possible loss of data
+source\ISO14443Analyzer.cpp(70): warning C4244: 'argument': conversion from 'double' to 'U64', possible loss of data
+source\ISO14443Analyzer.cpp(71): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+source\ISO14443Analyzer.cpp(102): warning C4244: '=': conversion from 'double' to 'S64', possible loss of data
+source\ISO14443Analyzer.cpp(55): warning C4101: 'bin': unreferenced local variable
+source\ISO14443Analyzer.cpp(258): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
+  ISO14443AnalyzerResults.cpp
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(22): warning C4251: 'ISO14443Analyzer::output_file': class 'std::basic_ofstream<char,std::char_traits<char>>' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+  C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\iosfwd(691): note: see declaration of 'std::basic_ofstream<char,std::char_traits<char>>'
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(24): warning C4251: 'ISO14443Analyzer::output_string': class 'std::vector<std::string,std::allocator<_Ty>>' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+          with
+          [
+              _Ty=std::string
+          ]
+  c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(24): note: see declaration of 'std::vector<std::string,std::allocator<_Ty>>'
+          with
+          [
+              _Ty=std::string
+          ]
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(40): warning C4251: 'ISO14443Analyzer::mSettings': class 'std::auto_ptr<ISO14443AnalyzerSettings>' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+  c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(40): note: see declaration of 'std::auto_ptr<ISO14443AnalyzerSettings>'
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(41): warning C4251: 'ISO14443Analyzer::mResults': class 'std::auto_ptr<ISO14443AnalyzerResults>' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+  c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(41): note: see declaration of 'std::auto_ptr<ISO14443AnalyzerResults>'
+c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443Analyzer.h(44): warning C4251: 'ISO14443Analyzer::mSimulationDataGenerator': class 'ISO14443SimulationDataGenerator' needs to have dll-interface to be used by clients of class 'ISO14443Analyzer'
+  c:\users\michael\documents\github\iso14443analyzer\iso14443analyzer\source\ISO14443SimulationDataGenerator.h(9): note: see declaration of 'ISO14443SimulationDataGenerator'
+  ISO14443AnalyzerSettings.cpp
+  ISO14443SimulationDataGenerator.cpp
      Creating library C:\Users\Michael\Documents\GitHub\ISO14443Analyzer\ISO14443Analyzer\x64\Release\ISO14443Analyzer.lib and object C:\Users\Michael\Documents\GitHub\ISO14443Analyzer\ISO14443Analyzer\x64\Release\ISO14443Analyzer.exp
   Generating code
-  3 of 268 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    27 functions had inline decision re-evaluated but remain unchanged
+  285 of 429 functions (66.4%) were compiled, the rest were copied from previous compilation.
+    181 functions were new in current compilation
+    23 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   ISO14443Analyzer.vcxproj -> C:\Users\Michael\Documents\GitHub\ISO14443Analyzer\ISO14443Analyzer\x64\Release\ISO14443Analyzer.dll
   ISO14443Analyzer.vcxproj -> C:\Users\Michael\Documents\GitHub\ISO14443Analyzer\ISO14443Analyzer\x64\Release\ISO14443Analyzer.pdb (Full PDB)

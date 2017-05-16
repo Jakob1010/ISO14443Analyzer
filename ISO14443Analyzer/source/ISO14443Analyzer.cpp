@@ -65,7 +65,7 @@ void ISO14443Analyzer::WorkerThread()
 
 		if (isBitstream == false)
 		{
-			if (mSerial->GetSampleOfNextEdge() - current_edge < 400 && mSerial->GetSampleOfNextEdge() - current_edge > 300) {
+			if (mSerial->GetSampleOfNextEdge() - current_edge < 340 && mSerial->GetSampleOfNextEdge() - current_edge > 200) {
 				output_file << "Start of Bitstream at " << current_edge << "\n";
 				mResults->AddMarker(current_edge, AnalyzerResults::Stop, mSettings->mInputChannel);
 				start_bitstream = current_edge;
